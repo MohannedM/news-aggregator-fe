@@ -1,16 +1,64 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './styles.css'
 import { Button, Form } from 'react-bootstrap'
+import { ConnectState } from '../../store/types'
+import { DismissNewsError, GetNewsFeed, GetSearchDetails, NewsArticle, NewsQueryParams, SearchParams } from '../../store/types/news.module'
+import Redux from 'redux'
+import { connect } from 'react-redux'
+import BlogPost from '../../components/BlogPost'
+import { dismissNewsError, getNewsFeed, getSearchDetails } from '../../store/actions'
+import BaseModal from '../../components/BaseModal'
+import Loading from '../Loading'
 
 interface NewsFeedProps {
+  token: string
+  searchParams: SearchParams
+  searchParamsLoading?: boolean 
+  newsArticles: NewsArticle[]
+  newsFeedLoading?: boolean
+  error?: string
+
+  getSearchDetails(token: string): GetSearchDetails
+  getNewsFeed(token: string, newsQuery?: NewsQueryParams): GetNewsFeed
+  onDismissError(): DismissNewsError
 }
 
-const NewsFeed: React.FC<NewsFeedProps> = () => {
-    // useEffect(() => {
+const NewsFeed: React.FC<NewsFeedProps> = ({ token, searchParams, searchParamsLoading, newsArticles, getNewsFeed, getSearchDetails, error, onDismissError, newsFeedLoading}) => {
+    const [userSearch, setUserSearch] = useState('')
+    const [userCountry, setUserCountry] = useState('')
+    const [userCategory, setUserCategory] = useState('')
 
-    // }, [])
+    const onUserSearchChange = (event: React.SyntheticEvent) => {
+      event.persist();
+      setUserSearch((event.target as HTMLInputElement).value)
+    }
+
+    const onUserCountryChange = (event: React.SyntheticEvent) => {
+      event.persist();
+      setUserCountry((event.target as HTMLInputElement).value)
+    }
+
+    const onUserCategoryChange = (event: React.SyntheticEvent) => {
+      event.persist();
+      setUserCategory((event.target as HTMLInputElement).value)
+    }
+
+    const onSearch = () => {
+      const newsQuery: any = {}
+      if (userSearch) newsQuery.search = userSearch
+      if (userCountry) newsQuery.country = userCountry
+      if (userCategory) newsQuery.category = userCategory
+      getNewsFeed(token, newsQuery)
+    }
+
+    useEffect(() => {
+      getNewsFeed(token)
+      getSearchDetails(token)
+    }, [])
+  
     return (
     <section className="home-blog bg-sand">
+      <BaseModal error={error} handleCloseModal={onDismissError} />
         <div className="container">
             {/* <!-- section title --> */}
             <div className="row justify-content-md-center">
@@ -25,117 +73,61 @@ const NewsFeed: React.FC<NewsFeedProps> = () => {
                 <div className="col-xl-6 col-lg-6 col-md-8">
                     <div className="section-title text-center title-ex1">
                     {/* onChange={(event: React.SyntheticEvent)=>setInputHandler(event, 'password')} */}
-                      <Form.Control placeholder="Search"  />
+                      <Form.Control placeholder="Search" onChange={onUserSearchChange} />
                     </div>
                 </div>
                 <div className="col-xl-2 col-lg-2 col-md-8">
                     <div className="section-title text-center title-ex1">
-                      <Form.Control  as={'select'} aria-label="Default select example">
+                      <Form.Control  as={'select'} aria-label="Default select example" onChange={onUserCountryChange}>
                         <option>Country</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="3">Three</option>
+                        {searchParams.countries.map((country) => (<option key={country} value={country}>{country}</option>))}
                       </Form.Control>
                     </div>
                 </div>
                 <div className="col-xl-2 col-lg-2 col-md-8">
                     <div className="section-title text-center title-ex1">
-                      <Form.Control  as={'select'} aria-label="Default select example">
+                      <Form.Control  as={'select'} aria-label="Default select example" onChange={onUserCategoryChange}>
                         <option>Category</option>
-                          <option value="1">One</option>
-                          <option value="2">Two</option>
-                          <option value="3">Three</option>
+                        {searchParams.categories.map((category) => (<option key={category} value={category}>{category}</option>))}
                       </Form.Control>
                     </div>
                 </div>
                 <div className="col-xl-2 col-lg-2 col-md-8">
                     <div className="section-title text-center title-ex1">
-                    <Button className="" type="submit" onClick={() => console.log('hi')}>
+                    <Button onClick={onSearch} disabled={searchParamsLoading}>
                                 Search 
-                                {/* {props.loading ? <> &nbsp; <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> </> : null}  */}
+                                {(searchParamsLoading || newsFeedLoading) ? <> &nbsp; <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> </> : null} 
                     </Button>
                     </div>
                 </div>
             </div>
             {/* <!-- section title ends --> */}
-            <div className="row ">
-                <div className="col-md-6">
-                    <div className="media blog-media">
-                      <a href="blog-post-left-sidebar.html"><img className="d-flex" src="https://www.bootdey.com/image/350x380/6495ED/000000" alt="Generic placeholder image" /></a>
-                      <div className="circle">
-                          <h5 className="day">14</h5>
-                          <span className="month">sep</span>
-                      </div>
-                      <div className="media-body">
-                        <a href=""><h5 className="mt-0">Standard Blog Post</h5></a>
-                        Sodales aliquid, in eget ac cupidatat velit autem numquam ullam ducimus occaecati placeat error.
-                        <a href="blog-post-left-sidebar.html" className="post-link">Read More</a>
-                        <ul>
-                            <li>by: Admin</li>
-                            <li className="text-right"><a href="blog-post-left-sidebar.html">07 comments</a></li>
-                        </ul>
-                      </div>
-                    </div>
-                </div>
-                <div className="col-md-6">
-                    <div className="media blog-media">
-                      <a href="blog-post-left-sidebar.html"><img className="d-flex" src="https://www.bootdey.com/image/350x380/FFB6C1/000000" alt="Generic placeholder image" /></a>
-                      <div className="circle">
-                            <h5 className="day">12</h5>
-                            <span className="month">sep</span>
-                        </div>
-                      <div className="media-body">
-                        <a href=""><h5 className="mt-0">perferendis labore</h5></a>
-                        Sodales aliquid, in eget ac cupidatat velit autem numquam ullam ducimus occaecati placeat error.
-                        <a href="blog-post-left-sidebar.html" className="post-link">Read More</a>
-                        <ul>
-                            <li>by: Admin</li>
-                            <li className="text-right"><a href="blog-post-left-sidebar.html">04 comments</a></li>
-                        </ul>
-                      </div>
-                    </div>
-                </div>
-                <div className="col-md-6">
-                    <div className="media blog-media">
-                      <a href="blog-post-left-sidebar.html"><img className="d-flex" src="https://www.bootdey.com/image/350x380/FF7F50/000000" alt="Generic placeholder image" /></a>
-                      <div className="circle">
-                            <h5 className="day">09</h5>
-                            <span className="month">sep</span>
-                        </div>
-                      <div className="media-body">
-                        <a href=""><h5 className="mt-0">deleniti incdunt magni</h5></a>
-                        Sodales aliquid, in eget ac cupidatat velit autem numquam ullam ducimus occaecati placeat error.
-                        <a href="blog-post-left-sidebar.html" className="post-link">Read More</a>
-                        <ul>
-                            <li>by: Admin</li>
-                            <li className="text-right"><a href="blog-post-left-sidebar.html">10 comments</a></li>
-                        </ul>
-                      </div>
-                    </div>
-                </div>
-                <div className="col-md-6">
-                    <div className="media blog-media">
-                      <a href="blog-post-left-sidebar.html"><img className="d-flex" src="https://www.bootdey.com/image/350x380/008B8B/000000" alt="Generic placeholder image" /></a>
-                      <div className="circle">
-                            <h5 className="day">04</h5>
-                            <span className="month">sep</span>
-                        </div>
-                      <div className="media-body">
-                        <a href=""><h5 className="mt-0">Explicabo magnam </h5></a>
-                        Sodales aliquid, in eget ac cupidatat velit autem numquam ullam ducimus occaecati placeat error.
-                        <a href="blog-post-left-sidebar.html" className="post-link">Read More</a>
-                        <ul>
-                            <li>by: Admin</li>
-                            <li className="text-right"><a href="blog-post-left-sidebar.html">06 comments</a></li>
-                        </ul>
-                      </div>
-                    </div>
-                </div>
-            </div>
+            {newsFeedLoading ? (<Loading />) : (<div className="row ">
+              {newsArticles.map((newsArticle) => <div className="col-md-6" key={newsArticle.publishedAt}><BlogPost newsArticle={newsArticle} /></div>)}
+            </div>)}
         </div>
     </section>
     
     )
 }
 
-export default NewsFeed
+const mapStateToProps = (state: ConnectState) => {
+  return{
+      token: state.auth.token!, // This page is not reachable if the token is not there so I am sure it will always be there
+      searchParams: state.news.searchParams,
+      searchParamsLoading: state.news.searchParamsLoading,
+      newsArticles: state.news.newsArticles,
+      newsFeedLoading: state.news.newsFeedLoading,
+      error: state.news.error,
+  }
+}
+
+const mapDispatchToProps = (dispatch: Redux.Dispatch) => {
+  return{
+      getSearchDetails: (token: string) => dispatch(getSearchDetails(token)),
+      getNewsFeed: (token: string, newsQuery?: NewsQueryParams) => dispatch(getNewsFeed(token, newsQuery)),
+      onDismissError: () => dispatch(dismissNewsError()),
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(NewsFeed);

@@ -22,17 +22,26 @@ export function* getSearchDetailsSaga(action: GetSearchDetails) {
     }
 }
 
-export function* getNewsFeedSaga(action: GetNewsFeed) {
+export function* getNewsFeedSaga({token, newsQuery}: GetNewsFeed) {
     try {
         yield put(getNewsFeedStart())
-        const response: GetNewsFeedResponse = yield axios.get("http://127.0.0.1:8000/api/get-news-feed" , {
+        let searchParam = ''
+        if (newsQuery) {
+            for (let i = 0; i < Object.keys(newsQuery).length; i++) {
+                const queryKey = Object.keys(newsQuery)[i]
+                const queryValue: string | undefined = newsQuery[queryKey]
+                searchParam += queryValue ? `${queryKey}=${queryValue}&` : '' 
+            }
+        }
+        // const searchParam = newsQuery ? `?${newsQuery.search ? `search=${newsQuery.search}&` : ''}` : ''
+        const response: GetNewsFeedResponse = yield axios.get(`http://127.0.0.1:8000/api/get-news-feed${(newsQuery && searchParam.length > 0) ? `?${searchParam}` : ''}` , {
             'headers': {
                 'Accept': 'application/json',
-                'Authorization': `Bearer ${action.token}`,
+                'Authorization': `Bearer ${token}`,
             },
         })
 
-        yield put(getNewsFeedSuccess(response.data.news))
+        yield put(getNewsFeedSuccess(response.data.news.articles))
     }
     catch(err: any) {
         yield put(getNewsFeedFail(err.response.data.message))

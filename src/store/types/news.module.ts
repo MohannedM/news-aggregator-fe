@@ -4,7 +4,7 @@ export interface NewsArticle {
     source?: {
         name: string
     },
-    author: string
+    author: string | null
     title: string
     description: string
     url: string
@@ -36,7 +36,10 @@ export interface GetSearchDetailsResponse {
 
 export interface GetNewsFeedResponse {
     data: {
-        news: NewsArticle[]
+        news: {
+            articles: NewsArticle[]
+            totalResults: number
+        }
     }
 }
 
@@ -56,10 +59,14 @@ export interface NewsQuery {
     country?: string
 }
 
+export interface NewsQueryParams {
+    [key: string]: string
+}
+
 export interface GetNewsFeed {
     type: typeof GET_NEWS_FEED
     token: string
-    newsQuery?: NewsQuery
+    newsQuery?: NewsQueryParams
 }
 
 export interface GetNewsFeedStart {

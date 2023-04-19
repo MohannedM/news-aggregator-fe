@@ -1,4 +1,4 @@
-import { DismissNewsError, GetNewsFeed, GetNewsFeedFail, GetNewsFeedStart, GetNewsFeedSuccess, GetSearchDetails, GetSearchDetailsDone, GetSearchDetailsStart, NewsArticle, NewsQuery, SearchParams } from '../types/news.module'
+import { DismissNewsError, GetNewsFeed, GetNewsFeedFail, GetNewsFeedStart, GetNewsFeedSuccess, GetSearchDetails, GetSearchDetailsDone, GetSearchDetailsStart, NewsArticle, NewsQuery, NewsQueryParams, SearchParams } from '../types/news.module'
 import * as actionTypes from './actionTypes'
 
 export const getSearchDetails: (token: string) => GetSearchDetails = (token) => {
@@ -21,7 +21,7 @@ export const getSearchDetailsDone: (searchParams?: SearchParams) => GetSearchDet
     }
 }
 
-export const getNewsFeed: (token: string, newsQuery?: NewsQuery) => GetNewsFeed = (token, newsQuery) => {
+export const getNewsFeed: (token: string, newsQuery?: NewsQueryParams) => GetNewsFeed = (token, newsQuery) => {
     return {
         type: actionTypes.GET_NEWS_FEED,
         token,
