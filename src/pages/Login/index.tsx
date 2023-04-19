@@ -119,7 +119,7 @@ const Login: React.FC<LoginProps> = props => {
                     </Form.Group>
                     <Row className="my-3">
                         <Col xs={12} md={6}>
-                            <Button variant="light" className="text-primary" type="submit" onClick={loginHandler} disabled={!allValid || props.loading}>
+                            <Button variant="light" className="text-primary" type="submit" style={{ zIndex: 999 }} onClick={loginHandler} disabled={!allValid || props.loading}>
                                 Login 
                                 {props.loading ? <> &nbsp; <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> </> : null} 
                             </Button>
